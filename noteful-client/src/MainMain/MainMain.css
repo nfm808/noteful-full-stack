@@ -1,0 +1,51 @@
+.MainMain {
+  width: calc(100vw - 100px);
+  height: calc(100vh - 120px);
+}
+.MainMain__list {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid black;
+  overflow-y: scroll;
+}
+.MainMain__list-item {
+  width: 95%;
+  border: 1px solid black;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+.MainMain__note-link {
+  padding-bottom: 20px;
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+.MainMain__button-container {
+  align-self: flex-start;
+  margin-top: 10px;
+  margin-left: 2.5%;
+  margin-bottom: 5px;
+}
+
+.MainMain__add-note-button {
+  background: white;
+  border: 1px solid black;
+  width: 80px;
+  line-height: 30px;
+  cursor: pointer; 
+}
+.MainMain__mod-delete {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-around;
+  align-content: center;
+}
+.modded-date {
+  font-size: small;
+  padding-top: 20px;
+}

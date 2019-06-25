@@ -1,0 +1,33 @@
+.NoteMain {
+  width: calc(100vw - 100px);
+  height: calc(100vh - 120px);
+  overflow-y: scroll;
+
+}
+.NoteMain__list {
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 95%;
+  height: 100px;
+  border: 1px solid black;
+  margin: 5px auto;
+}
+.NoteMain__list-item {
+  height: 100px;
+  width: 95%;
+  padding: 5px;
+  margin-top: 5px;
+
+}
+.NoteMain__content {
+  width: 95%;
+  height: auto;
+  margin: 5px auto;
+}
+.inline {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
