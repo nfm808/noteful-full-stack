@@ -3,9 +3,10 @@ const knex = require('knex')
 const app = require('../src/app')
 const { makeFoldersArray, makeNotesArray } = require('../test/test.fixtures')
 
+const auth = {"Authorization": "Bearer " + process.env.API_TOKEN}
+
 describe('Folders Endpoints', () => {
   let db
-  const auth = {"Authorization": "Bearer " + process.env.API_TOKEN}
   before('make knex instance', () => {
     db = knex({
       client: 'pg',
@@ -29,6 +30,29 @@ describe('Folders Endpoints', () => {
           .expect(200, [])
       });
     })
+    context('Given there are folders', () => {
+      const testFolders = makeFoldersArray()
+      const testNotes = makeNotesArray()
+
+      beforeEach('insert folders', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(() => {
+            return db
+              .into('noteful_notes')
+              .insert(testNotes)
+          })
+      })
+
+      it('returns 200 and an array of folders', () => {
+        return supertest(app)
+          .get('/')
+          .set(auth)
+          .expect(200, testFolders)
+      });
+    })
+    
   })
 })
 
