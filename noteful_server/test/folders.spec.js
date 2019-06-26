@@ -51,8 +51,22 @@ describe('Folders Endpoints', () => {
           .set(auth)
           .expect(200, testFolders)
       });
-    })
-    
+    })  
   })
+
+  describe('DELETE /api/folders/:folder-id', () => {
+    context('Given the folder does not exist', () => {
+      it('responds 404 and an error message', () => {
+        const folderID = 12345
+        return supertest(app)
+          .delete(`/api/folders/${folderID}`)
+          .set(auth)
+          .expect(404, {
+            error: { message: `Folder doesn't exist`}
+          })
+      });
+    })    
+  })
+  
 })
 
