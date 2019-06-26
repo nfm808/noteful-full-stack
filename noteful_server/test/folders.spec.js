@@ -47,7 +47,7 @@ describe('Folders Endpoints', () => {
 
       it('returns 200 and an array of folders', () => {
         return supertest(app)
-          .get('/')
+          .get('/api/folders')
           .set(auth)
           .expect(200, testFolders)
       });
