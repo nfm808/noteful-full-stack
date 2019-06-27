@@ -45,5 +45,35 @@ foldersRouter
           .catch(next)
       })
   })
+  .patch(jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const { folder_id } = req.params
+    const { folder_name } = req.body
+    const newFolderFields = { folder_name }
+
+    const numberOfValues = Object.values(newFolderFields).filter(Boolean).length
+    FoldersService.getById(knexInstance, folder_id)
+      .then(folder => {
+        if (!folder) {
+          return res.status(404).json({
+            error: { message: `Folder doesn't exist`}
+          })
+        }
+        if( numberOfValues === 0) {
+          return res.status(400).json({
+            error: { message: `Request body content must be one of folder_name`}
+          })
+        }
+        FoldersService.updateFolder(
+          knexInstance,
+          folder_id,
+          newFolderFields
+        )
+          .then(rowsAffected => {
+            res.status(204).end()
+          })
+          .catch(next)
+      })
+  })
 
   module.exports = foldersRouter

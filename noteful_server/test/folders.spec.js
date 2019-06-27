@@ -115,6 +115,54 @@ describe('Folders Endpoints', () => {
     })
       
   })
+
+  describe('PATCH /api/folders/:folder-id', () => {
+    context('Given the folder does not exist', () => {
+      it('responds 404 and an error message', () => {
+        const folderID = 12345
+        return supertest(app)
+          .patch(`/api/folders/${folderID}`)
+          .set(auth)
+          .expect(404, {
+            error: { message: `Folder doesn't exist`}
+          })
+      });
+    })
+    context('Given the folder exists', () => {
+      const testFolders = makeFoldersArray()
+
+      beforeEach('insert folders', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+      })
+
+      it('responds with 204 and updates the folder', () => {
+        const folderIdToUpdate = 2
+        const updatedFolder = {
+          folder_name: 'updated folder 2'
+        }
+        const expectedFolder = {
+          ...testFolders[folderIdToUpdate -1],
+          ...updatedFolder
+        }
+
+        return supertest(app)
+          .patch(`/api/folders/${folderIdToUpdate}`)
+          .set(auth)
+          .send(updatedFolder)
+          .expect(204)
+          .then(res => 
+            supertest(app)
+              .get(`/api/bookmarks/`)
+              .set(auth)
+              .expect(expectedFolder)  
+          )
+      });
+    })
+    
+  })
+  
   
 })
 
