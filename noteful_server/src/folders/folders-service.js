@@ -14,6 +14,12 @@ const FoldersService = {
       .from('noteful_folders')
       .where({ id })
       .delete()
+  },
+  updateFolder(knex, id, newFolderFields) {
+    return knex
+      .from('noteful_folders')
+      .where({ id })
+      .update(newFolderFields)
   }
 }
 

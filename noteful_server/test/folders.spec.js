@@ -154,9 +154,12 @@ describe('Folders Endpoints', () => {
           .expect(204)
           .then(res => 
             supertest(app)
-              .get(`/api/bookmarks/`)
+              .get(`/api/folders`)
               .set(auth)
-              .expect(expectedFolder)  
+              .then(res => {
+                const actual = res.body.filter(folder => folder.id == folderIdToUpdate)[0]
+                expect(actual).to.eql(expectedFolder)
+              })  
           )
       });
     })
