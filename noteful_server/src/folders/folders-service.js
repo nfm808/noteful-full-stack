@@ -20,6 +20,15 @@ const FoldersService = {
       .from('noteful_folders')
       .where({ id })
       .update(newFolderFields)
+  },
+  insertFolder(knex, newFolder) {
+    return knex
+      .insert(newFolder)
+      .into('noteful_folders')
+      .returning('*')
+      .then(rows => {
+        return rows[0]
+      })
   }
 }
 

@@ -22,6 +22,34 @@ foldersRouter
       })
       .catch(next)
   })
+  .post(jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const { folder_name } = req.body
+    const newFolder = { folder_name }
+    if (!folder_name) {
+      return res.status(400).json({
+        error: { message: `Folder name required`}
+      })
+    }
+    FoldersService.getAllFolders(knexInstance)
+      .then(folders => {
+        const filterForDuplicate = folders.filter(folder => folder.folder_name === newFolder.folder_name)
+        if (filterForDuplicate.length > 0) {
+          return res.status(400).json({
+            error: { message: `Folder with folder name ${newFolder.folder_name} already exists`}
+          })
+        }
+        FoldersService.insertFolder(knexInstance, newFolder)
+          .then(folder => {
+            logger.info(`folder created with id '${folder.id}`)
+            res
+              .status(201)
+              .location(path.posix.join(req.originalUrl, `/${folder.id}`))
+              .json(serializeFolder(folder))
+          })
+          .catch(next)
+      })
+  })
 
 foldersRouter
   .route('/:folder_id')

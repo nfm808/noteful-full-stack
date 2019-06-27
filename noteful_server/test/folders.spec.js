@@ -172,11 +172,75 @@ describe('Folders Endpoints', () => {
           .expect(400, {
             error: { message: `Request body content must be one of folder_name`}
           })
-      });
+      })
     })
     
   })
-  
-  
+
+  describe('POST /api/folders', () => {
+    context('Given there are no folders', () => {
+      it('should return 201 and json of the newly created folder', () => {
+        const newFolder = {
+          folder_name: 'new test folder'
+        }
+        return supertest(app)
+          .post('/api/folders')
+          .set(auth)
+          .send(newFolder)
+          .expect(201)
+          .then(res => {
+            expect(res.body.folder_name).to.eql(newFolder.folder_name)
+            expect(res.body).to.have.property('id')
+            expect(res.headers.location).to.eql(`/api/folders/${res.body.id}`)
+          })
+      })
+    })
+    context('Given there are folders in the database', () => {
+      const testFolders = makeFoldersArray()
+      const testNotes = makeNotesArray()
+
+
+      beforeEach('insert folders', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(() => {
+            return db
+              .into('noteful_notes')
+              .insert(testNotes)
+          })
+      })
+
+      it('if database has same folder_name responds 400 and error message', () => {
+        const newTestFolder = {
+          folder_name: 'Folder 1'
+        }
+        return supertest(app)
+          .post('/api/folders')
+          .set(auth)
+          .send(newTestFolder)
+          .expect(400, {
+            error: { message: `Folder with folder name ${newTestFolder.folder_name} already exists`}
+          })
+      });
+      it('if no required field submitted responds 400', () => {
+        return supertest(app)
+          .post('/api/folders')
+          .set(auth)
+          .expect(400, {
+            error: { message: 'Folder name required'}
+          })
+      });
+      it('returns 400 if irrelevant key sent', () => {
+        return supertest(app)
+          .post('/api/folders')
+          .set(auth)
+          .send({irrelevant: 'foo'})
+          .expect(400, {
+            error: { message: `Folder name required`}
+          })
+      });
+    })  
+  })
 })
 
