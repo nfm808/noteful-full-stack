@@ -9,6 +9,12 @@ const FoldersService = {
       .where('id', id)
       .first()
   },
+  deleteFolder(knex, id) {
+    return knex
+      .from('noteful_folders')
+      .where({ id })
+      .delete()
+  }
 }
 
 module.exports = FoldersService

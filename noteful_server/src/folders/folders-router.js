@@ -18,7 +18,6 @@ foldersRouter
     const knexInstance = req.app.get('db')
     FoldersService.getAllFolders(knexInstance)
       .then(folders => {
-        logger.info(folders)
         res.json(folders.map(folder => serializeFolder(folder)))
       })
       .catch(next)
@@ -26,32 +25,25 @@ foldersRouter
 
 foldersRouter
   .route('/:folder_id')
-  .all((req, res, next) => {
-    FoldersService.getById(
-      req.app.get('db'),
-      req.params.folder_id
-    )
-    .then(folder => {
-      if (!folder) {
-        logger.error(`Invalid article request with id: ${req.params.folder_id}`)
-        return res.status(404).json({
-          error: { message: `Folder doesn't exist`}
-        })
-      }
-      res.folder = folder
-      next()
-    })
-    .catch(next)
-  })
   .delete((req, res, next) => {
-    FoldersService.deleteFolder(
-      req.app.get('db'),
-      req.params.folder_id
-    )
-      .then(numRowsAffected => {
-        res.status(204).end()
+    const { folder_id } = req.params
+    const knexInstance = req.app.get('db')
+    
+    FoldersService.getById(knexInstance, folder_id )
+      .then(folder => {
+        if (!folder) {
+          logger.error(`Invalid folder DELETE request with id: ${folder_id}`)
+          return res
+            .status(404).json({
+              error: { message: `Folder doesn't exist`}
+            })
+        }
+        FoldersService.deleteFolder(knexInstance, folder.id)
+          .then(() => {
+            res.status(204).end()
+          })
+          .catch(next)
       })
-      .catch(next)
   })
 
   module.exports = foldersRouter

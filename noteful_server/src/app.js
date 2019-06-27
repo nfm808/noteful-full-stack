@@ -6,6 +6,7 @@ const helmet = require('helmet')
 const logger = require('./logger')
 const { NODE_ENV } = require('./config')
 const foldersRouter = require('./folders/folders-router')
+const notesRouter = require('./notes/notes-router')
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use(function validateBearerToken(req, res, next) {
   next()
 })
 app.use('/api/folders', foldersRouter)
+app.use('/api/notes', notesRouter)
 app.get('/', (req, res) => {
   res.send('Hello, world!')
 })
