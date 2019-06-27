@@ -57,7 +57,22 @@ describe('Notes Endpoints', () => {
           })
       });
     })
-    
+  })
+  
+  describe('POST /api/notes', () => {
+    context('Given there are no notes', () => {
+      const newNote = {
+        note_name: 'test add note',
+        date_modified: '2019-01-03T00:00:00.000Z',
+        folder_id: 1,
+        content: 'test note content...'
+      }
+      return supertest(app)
+        .post('/api/notes')
+        .set(auth)
+        .send(newNote)
+        .expect(201, newNote)
+    })
     
   })
   
