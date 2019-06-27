@@ -161,6 +161,17 @@ describe('Folders Endpoints', () => {
                 expect(actual).to.eql(expectedFolder)
               })  
           )
+      })
+
+      it('responds with 400 when no required fields supplied ', () => {
+        const folderIdToUpdate = 2
+        return supertest(app)
+          .patch(`/api/folders/${folderIdToUpdate}`)
+          .set(auth)
+          .send({ irrelevantField: 'foo' })
+          .expect(400, {
+            error: { message: `Request body content must be one of folder_name`}
+          })
       });
     })
     
