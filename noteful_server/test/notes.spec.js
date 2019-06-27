@@ -30,6 +30,34 @@ describe('Notes Endpoints', () => {
           .expect(200, [])
       });
     })
+    context('Given there are notes', () => {
+      const testFolders = makeFoldersArray()
+      const testNotes = makeNotesArray()
+
+      beforeEach('seed database', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(() => {
+            return db
+              .into('noteful_notes')
+              .insert(testNotes)
+          })
+      })
+
+      it('it returns 200 and an array of notes', () => {
+        return supertest(app)
+          .get('/api/notes')
+          .set(auth)
+          .expect(200)
+          .then(res => {
+            const actual = res.body.map(note => Object.keys(note))
+            const expected = testNotes.map(note => Object.keys(note))
+            expect(actual).to.eql(expected)
+          })
+      });
+    })
+    
     
   })
   
