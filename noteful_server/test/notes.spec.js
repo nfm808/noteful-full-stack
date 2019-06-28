@@ -152,10 +152,63 @@ describe('Notes Endpoints', () => {
     })
   })
 
-  describe('GET /api/notes/:note_id', () => {
-    context('note does not exist', () => {
-      
+  describe.only('GET /api/notes/:note_id', () => {
+    context('no notes in database', () => {
+      it('returns 404 when note does not exist', () => {
+        const noteId = 12345
+        return supertest(app)
+          .get(`/api/notes/${noteId}`)
+          .set(auth)
+          .expect(404, {
+            error: { message: `Note not found`}
+          })
+      });
     })
+    context('notes in db', () => {
+      const testFolders = makeFoldersArray()
+      const testNotes = makeNotesArray()
+
+      beforeEach('seed db', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(() => {
+            return db
+              .into('noteful_notes')
+              .insert(testNotes)
+          })
+      })
+
+      it('returns 404 when note does not exist', () => {
+        const noteId = 12345
+        return supertest(app)
+          .get(`/api/notes/${noteId}`)
+          .set(auth)
+          .expect(404, {
+            error: { message: `Note not found`}
+          })
+      });
+
+      it('returns 200 and the note', function () {
+        this.retries(3)
+        const noteId = 1
+        let expected = testNotes.filter(note => note.id == noteId)[0]
+        return supertest(app)
+          .get(`/api/notes/${noteId}`)
+          .set(auth)
+          .expect(200)
+          .then(note => {
+            expect(note.body.id).to.eql(expected.id)
+            expect(note.body.content).to.eql(expected.content)
+            expect(note.body.folder_id).to.eql(expected.folder_id)
+            const actual = new Date(new Date()).toLocaleString()
+            const expectedDate = new Date(new Date()).toLocaleString()
+            expect(actual).to.eql(expectedDate)
+          })
+      });
+
+    })
+    
     
   })
   
