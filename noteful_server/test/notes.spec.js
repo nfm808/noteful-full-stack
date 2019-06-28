@@ -134,6 +134,21 @@ describe('Notes Endpoints', () => {
             error: { message: `Note name must be unique`}
           })
       });
+
+      it('returns 400 if folder_id does not exist', () => {
+        const newNote = {
+          note_name: 'test note',
+          folder_id: 12345,
+          content: 'test note content ...'
+        }
+        return supertest(app)
+          .post('/api/notes')
+          .set(auth)
+          .send(newNote)
+          .expect(400, {
+            error: { message: `Folder does not exist`}
+          })
+      });
     })
     
     

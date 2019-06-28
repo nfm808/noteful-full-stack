@@ -3,6 +3,7 @@ const express = require('express')
 const logger = require('../logger')
 const xss = require('xss')
 const NotesService = require('./notes-service')
+const FoldersService = require('../folders/folders-service')
 
 const notesRouter = express.Router()
 const jsonParser = express.json()
@@ -45,15 +46,23 @@ notesRouter
             error: { message: `Note name must be unique`}
           })
         }
-        NotesService.insertNote(knexInstance, newNote)
-          .then(note => {
-            logger.info(`note created with id '${note.id}'`)
-            res
-              .status(201)
-              .location(path.posix.join(req.originalUrl, `/${note.id}`))
-              .json(serializeNote(note))
-          })
-          .catch(next)
+        FoldersService.getById(knexInstance, folder_id)
+          .then(folder => {
+            if (!folder) {
+              return res.status(400).json({
+                error: { message: `Folder does not exist`}
+              })
+            }
+          NotesService.insertNote(knexInstance, newNote)
+            .then(note => {
+              logger.info(`note created with id '${note.id}'`)
+              res
+                .status(201)
+                .location(path.posix.join(req.originalUrl, `/${note.id}`))
+                .json(serializeNote(note))
+            })
+            .catch(next)
+        })
       })
 
   })
