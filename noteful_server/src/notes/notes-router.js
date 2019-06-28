@@ -82,5 +82,43 @@ notesRouter
       })
       .catch(next)
   })
+  .patch(jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const {note_id} = req.params
+    const { note_name, folder_id, content } = req.body
+    const newNoteFields = { note_name, folder_id, content, date_modified: new Date() }
+
+    const numberOfValues = Object.values(newNoteFields).filter(Boolean).length
+    NotesService.getById(knexInstance, note_id)
+      .then(note => {
+        if (!note) {
+          return res.status(404).json({
+            error: { message: `Note not found`}
+          })
+        }
+        if ( numberOfValues === 0) {
+          return res.status(400).json({
+            error: { message: `Request body content must be one of note_name, folder_id, content`}
+          })
+        }
+        FoldersService.getById(knexInstance, note.folder_id)
+          .then(folder => {
+            if (!folder) {
+              return res.status(400).json({
+                error: { message: `Folder id not a valid id`}
+              })
+            }
+            NotesService.updateNote(
+              knexInstance,
+              note_id,
+              newNoteFields
+            )
+              .then(rowsAffected => {
+                res.status(204).end()
+              })
+              .catch(next)
+          })
+      })
+  })
 
   module.exports = notesRouter

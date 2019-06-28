@@ -152,7 +152,7 @@ describe('Notes Endpoints', () => {
     })
   })
 
-  describe.only('GET /api/notes/:note_id', () => {
+  describe('GET /api/notes/:note_id', () => {
     context('no notes in database', () => {
       it('returns 404 when note does not exist', () => {
         const noteId = 12345
@@ -211,6 +211,39 @@ describe('Notes Endpoints', () => {
     
     
   })
+
+  describe.only('PATCH /api/notes/:note_id', () => {
+    context('there are no notes', () => {
+      it('returns 404', () => {
+        const note_id = 12345
+        return supertest(app)
+          .patch(`/api/notes/${note_id}`)
+          .set(auth)
+          .expect(404, {
+            error: { message: `Note not found`}
+          })
+      });
+    })
+
+    context('there are notes in the db', () => {
+      const testNotes = makeNotesArray()
+      const testFolders = makeFoldersArray()
+
+      beforeEach('seed db', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(()=> {
+            return db
+              .into('noteful_notes')
+              .insert(testNotes)
+          })
+      })
+    })
+    
+    
+  })
+  
   
   
 })
