@@ -60,19 +60,82 @@ describe('Notes Endpoints', () => {
   })
   
   describe('POST /api/notes', () => {
-    context('Given there are no notes', () => {
-      const newNote = {
-        note_name: 'test add note',
-        date_modified: '2019-01-03T00:00:00.000Z',
-        folder_id: 1,
-        content: 'test note content...'
-      }
-      return supertest(app)
-        .post('/api/notes')
-        .set(auth)
-        .send(newNote)
-        .expect(201, newNote)
+    const testFolders = makeFoldersArray()
+
+    beforeEach('seed folders db', () => {
+      return db
+       .insert(testFolders)
+       .into('noteful_folders')
     })
+    context('Given there are no notes', () => {
+      it('returns 201 and the new note', function () {
+        this.retries(3)
+        const newNote = {
+          note_name: 'test add note',
+          folder_id: 1,
+          content: 'test note content...'
+        }
+        return supertest(app)
+          .post('/api/notes')
+          .set(auth)
+          .send(newNote)
+          .expect(201)
+          .then(res => {
+            const { note_name, folder_id, content } = res.body
+            expect(res.body).to.have.property('id')
+            expect(note_name).to.eql(newNote.note_name)
+            expect(content).to.eql(newNote.content)
+            expect(folder_id).to.eql(newNote.folder_id)
+            expect(res.body).to.have.property('date_modified')
+          })
+      })  
+    });
+    context('Given there are notes in the database', () => {
+      const testNotes = makeNotesArray()
+
+      beforeEach('seed note db', () => {
+        return db
+          .insert(testNotes)
+          .into('noteful_notes')
+      })
+      const requiredFields = ['note_name', 'folder_id', 'content']
+
+      requiredFields.forEach(field => {
+        const newNote = {
+          note_name: 'Test new note',
+          folder_id: 1,
+          content: 'test new note content...'
+        }
+
+        it(`responds with 400 and an error when ${field} is missing`, () => {
+          delete newNote[field]
+
+          return supertest(app)
+            .post('/api/notes')
+            .set(auth)
+            .send(newNote)
+            .expect(400, {
+              error: { message: `Missing '${field}' in request body`}
+            })
+        })
+      })
+
+      it('responds 400 when note_name already exists', () => {
+        const newNote = {
+          note_name : 'note 1',
+          folder_id : 1,
+          content: 'new note content...'
+        }
+        return supertest(app)
+          .post('/api/notes')
+          .set(auth)
+          .send(newNote)
+          .expect(400, {
+            error: { message: `Note name must be unique`}
+          })
+      });
+    })
+    
     
   })
   
