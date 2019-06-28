@@ -67,4 +67,7 @@ notesRouter
 
   })
 
+notesRouter
+  .route('/:note_id')
+
   module.exports = notesRouter

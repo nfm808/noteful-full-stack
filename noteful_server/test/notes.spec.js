@@ -150,8 +150,14 @@ describe('Notes Endpoints', () => {
           })
       });
     })
-    
+  })
+
+  describe('GET /api/notes/:note_id', () => {
+    context('note does not exist', () => {
+      
+    })
     
   })
+  
   
 })
