@@ -88,7 +88,6 @@ notesRouter
     const { note_name, folder_id, content } = req.body
     const newNoteFields = { note_name, folder_id, content }
     const newModifiedDateField = { date_modified: new Date()}
-    
     const numberOfValues = Object.values(newNoteFields).filter(Boolean).length
     NotesService.getById(knexInstance, note_id)
       .then(note => {
@@ -116,12 +115,25 @@ notesRouter
               updatedNote
             )
               .then(rowsAffected => {
-                res.status(204).end()
+                res.status(202).end()
               })
               .catch(next)
           })
       })
       
+  })
+  .delete((req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const { note_id } = req.params
+    NotesService.deleteNote(knexInstance, note_id)
+      .then(note => {
+        if (!note) {
+          return res.status(400).json({
+            error: { message: `Note does not exist` }
+          })
+        }
+        return res.status(204).end()
+      })
   })
 
   module.exports = notesRouter

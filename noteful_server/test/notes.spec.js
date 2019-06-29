@@ -212,7 +212,7 @@ describe('Notes Endpoints', () => {
     
   })
 
-  describe.only('PATCH /api/notes/:note_id', () => {
+  describe('PATCH /api/notes/:note_id', () => {
     context('there are no notes', () => {
       it('returns 404', () => {
         const note_id = 12345
@@ -278,7 +278,7 @@ describe('Notes Endpoints', () => {
 
       });
 
-      it('responds with 204 and updates the folder', function() {
+      it('responds with 202 and updates the folder', function() {
         this.retries(3)
         const noteIdToUpdate = 1
         const updatedNote = {
@@ -296,7 +296,7 @@ describe('Notes Endpoints', () => {
           .patch(`/api/notes/${noteIdToUpdate}`)
           .set(auth)
           .send(updatedNote)
-          .expect(204)
+          .expect(202)
           .then(res =>
             supertest(app)
               .get(`/api/notes/${noteIdToUpdate}`)
@@ -316,6 +316,57 @@ describe('Notes Endpoints', () => {
     
     
   })
+
+  describe('DELETE /api/notes/:note_id', () => {
+    context('Given there are no notes in db', () => {
+      it('returns 400 and error message', () => {
+        const noteId = 12345
+        return supertest(app)
+          .delete(`/api/notes/${noteId}`)
+          .set(auth)
+          .expect(400, {
+            error: { message: `Note does not exist` }
+          })
+      });
+    })
+
+    context('Given there are notes in the db', () => {
+      const testNotes = makeNotesArray()
+      const testFolders = makeFoldersArray()
+
+      beforeEach('seed db', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(() => {
+            return db
+              .into('noteful_notes')
+              .insert(testNotes)
+          })
+      })
+
+      it('responds 204', () => {
+        const noteToDelete = 1
+        const expected = testNotes.filter(note => note.id !== noteToDelete).length
+        return supertest(app)
+          .delete(`/api/notes/${noteToDelete}`)
+          .set(auth)
+          .expect(204)
+          .then(res =>
+            supertest(app)
+            .get(`/api/notes`)
+            .set(auth)
+            .then(res => {
+              expect(res.body.length).to.eql(expected)
+            }) 
+          )
+      });
+
+    })
+    
+    
+  })
+  
   
   
   
