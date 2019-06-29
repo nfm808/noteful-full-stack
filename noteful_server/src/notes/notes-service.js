@@ -17,6 +17,12 @@ const NotesService = {
       .select('*')
       .where('id', id)
       .first()
+  },
+  updateNote(knex, id, newNoteFields) {
+    return knex
+      .from('noteful_notes')
+      .where({ id })
+      .update(newNoteFields)
   }
 }
 

@@ -86,8 +86,9 @@ notesRouter
     const knexInstance = req.app.get('db')
     const {note_id} = req.params
     const { note_name, folder_id, content } = req.body
-    const newNoteFields = { note_name, folder_id, content, date_modified: new Date() }
-
+    const newNoteFields = { note_name, folder_id, content }
+    const newModifiedDateField = { date_modified: new Date()}
+    
     const numberOfValues = Object.values(newNoteFields).filter(Boolean).length
     NotesService.getById(knexInstance, note_id)
       .then(note => {
@@ -101,17 +102,18 @@ notesRouter
             error: { message: `Request body content must be one of note_name, folder_id, content`}
           })
         }
-        FoldersService.getById(knexInstance, note.folder_id)
+        FoldersService.getById(knexInstance, folder_id)
           .then(folder => {
             if (!folder) {
               return res.status(400).json({
-                error: { message: `Folder id not a valid id`}
+                error: { message: `Invalid folder id`}
               })
             }
+            const updatedNote = { ...newNoteFields, ...newModifiedDateField}
             NotesService.updateNote(
               knexInstance,
               note_id,
-              newNoteFields
+              updatedNote
             )
               .then(rowsAffected => {
                 res.status(204).end()
@@ -119,6 +121,7 @@ notesRouter
               .catch(next)
           })
       })
+      
   })
 
   module.exports = notesRouter

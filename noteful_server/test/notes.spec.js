@@ -239,6 +239,79 @@ describe('Notes Endpoints', () => {
               .insert(testNotes)
           })
       })
+
+      it('returns 404 when folder does note exists', () => {
+        const idToUpdate = 12345
+        return supertest(app)
+          .patch(`/api/notes/${idToUpdate}`)
+          .set(auth)
+          .expect(404, {
+            error: { message: `Note not found`}
+          })
+      });
+
+      it('returns 400 when no required fields are provided', () => {
+        const noteToUpdate = 2
+        return supertest(app)
+          .patch(`/api/notes/${noteToUpdate}`)
+          .set(auth)
+          .send({ irrelevantField: 'foo'})
+          .expect(400, {
+            error: { message: `Request body content must be one of note_name, folder_id, content` }
+          })
+      });
+
+      it('responds with 400 when invalid folder id provided', () => {
+        const noteIdToUpdate = 1
+        const updatedNote = {
+          note_name: "updated note 1",
+          folder_id: 12345,
+          content: "updated note 1 content..."
+        }
+        return supertest(app)
+          .patch(`/api/notes/${noteIdToUpdate}`)
+          .set(auth)
+          .send(updatedNote)
+          .expect(400, {
+            error: { message: `Invalid folder id` }
+          })
+
+      });
+
+      it('responds with 204 and updates the folder', function() {
+        this.retries(3)
+        const noteIdToUpdate = 1
+        const updatedNote = {
+          note_name: "updated note 1",
+          folder_id: 1,
+          content: "updated note 1 content..."
+        }
+        const newDate = { date_modified: new Date().toLocaleString()}
+        const expectedNote = {
+          ...testNotes[noteIdToUpdate -1],
+          ...updatedNote,
+          ...newDate
+        }
+        return supertest(app)
+          .patch(`/api/notes/${noteIdToUpdate}`)
+          .set(auth)
+          .send(updatedNote)
+          .expect(204)
+          .then(res =>
+            supertest(app)
+              .get(`/api/notes/${noteIdToUpdate}`)
+              .set(auth)
+              .expect(res => {
+                expect(res.body.note_name).to.eql(expectedNote.note_name)
+                expect(res.body.content).to.eql(expectedNote.content)
+                expect(res.body).to.have.property('id')
+                expect(res.body.folder_id).to.eql(expectedNote.folder_id)
+                const actual = new Date(res.body.date_modified).toLocaleString()
+                const expected = expectedNote.date_modified
+                expect(actual).to.eql(expected)
+              })  
+          )
+      });
     })
     
     
