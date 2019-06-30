@@ -5,18 +5,17 @@ export const getNotesForFolder = (notes, folderId) => {
     return null;
   }
   return (!folderId) ? notes
-    : notes.filter(note => note.folderId === folderId);
+    : notes.filter(note => note.folder_id === parseInt(folderId));
 }
 
 // this filters through the notes to find the note 
 // associated with the current selected note
 export const findNote = (notes, noteId) => {
-  // console.log( 'noteId variable:', noteId)
   if(!notes) {
     return null;
   }
   return (!noteId) ?  notes 
-        : notes.filter(note => note.id === noteId )[0];
+        : notes.filter(note => note.id === parseInt(noteId) )[0];
 }
 
 // filters the folder needed to pull the folder name
@@ -25,7 +24,6 @@ export const findFolder = (folders, folderId) => {
   if(!folders) {
     return null;
   }
-  // console.log(folderId)
   return (!folderId) ? folders  
         : folders.filter(folder => folder.id === folderId)[0];
 }

@@ -19,7 +19,7 @@ class MainSidebar extends React.Component {
                       className="MainSidebar__folder-link"
                       to={`/folder/${folder.id}`}
                     >
-                    {folder.name} 
+                    {folder.folder_name} 
                     </NavLink>
                   </li>  
                 )}

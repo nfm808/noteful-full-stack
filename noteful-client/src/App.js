@@ -35,8 +35,8 @@ class App extends React.Component {
       }
     }
     Promise.all([
-      fetch(`${config.API_URL}notes`),
-      fetch(`${config.API_URL}folders`)
+      fetch(`${config.API_URL}/notes`),
+      fetch(`${config.API_URL}/folders`)
     ], options)
     // we then take the responses and organize them
     // into an array at assigned positions

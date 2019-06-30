@@ -20,7 +20,7 @@ import './MainMain.css'
               <li key={note.id} className="MainMain__list-item">
                 <Note 
                   id={note.id}
-                  name={note.name}
+                  note_name={note.note_name}
                   modified={note.modified}
                 />
               </li>

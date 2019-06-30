@@ -105,24 +105,18 @@ class AddNote extends Component {
     })
   }
 
-  idGenerator() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-  }
-
 
   handleSubmit(e) {
     e.preventDefault()
     const { name, folderId, content } = this.state;
     
     let newNote = {
-      name: name,
-      folderId: folderId,
+      note_name: name,
+      folder_id: folderId,
       content: content,
-      id: this.idGenerator(),
-      modified: `${new Date()}`
     }
 
-    fetch(`${config.API_ENDPOINT}/notes`, {
+    fetch(`${config.API_URL}/notes`, {
       method: `POST`,
       headers: {
         'content-type': 'application/json',
@@ -133,9 +127,14 @@ class AddNote extends Component {
       if(!res.ok) {
         return res.json().then(e => Promise.reject(e))
       }
-      this.context.addNote(newNote);
-      this.props.history.push(`/note/${newNote.id}`);
-    }).catch(err => {
+      return res.json()
+      // this.props.history.push(`/note/${res.id}`);
+    })
+    .then(resJson => {
+      this.context.addNote(resJson);
+      this.props.history.push(`/note/${resJson.id}`)
+    })
+    .catch(err => {
       console.error({err});
     });
   }
@@ -144,7 +143,7 @@ class AddNote extends Component {
     const { folders } = this.context;
     const folderOptions = !folders ? null 
                           :folders.map(folder => 
-                          <option key={folder.id} value={folder.id}>{folder.name}</option>
+                          <option key={folder.id} value={folder.id}>{folder.folder_name}</option>
                           );
 
     return (

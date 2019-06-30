@@ -25,8 +25,8 @@ class NoteMain extends React.Component {
                         <ul className="NoteMain__list">
                           <Note 
                             id={note.id}
-                            name={note.name}
-                            modified={note.modified}
+                            note_name={note.note_name}
+                            modified={note.date_modified}
                             onDeleteNote={this.handleDeleteNote}
                           />
                         </ul>

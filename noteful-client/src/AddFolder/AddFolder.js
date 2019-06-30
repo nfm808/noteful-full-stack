@@ -23,22 +23,16 @@ export default class AddFolder extends Component {
     }
   }
   
-  // creates a random string to generate unique ids
-  idGenerator() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-  }
-
   handleSubmit(e) {
     e.preventDefault();
     const { name } = this.state;
 
     // create the new object for the folder post
     const newFolder = {
-      id: this.idGenerator(),
-      "name": name
+      "folder_name": name
     }
     
-    fetch(`${config.API_ENDPOINT}/folders`, {
+    fetch(`${config.API_URL}/folders`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json'
@@ -51,9 +45,13 @@ export default class AddFolder extends Component {
       if (!res.ok) {
         return res.json().then(e => Promise.reject(e))
       }
+      return res.json()
       // add the new folder to the current state
-      this.context.addFolder(newFolder);
-      this.props.history.push(`/folder/${newFolder.id}`)
+    })
+    .then(resJson => {
+      this.context.addFolder(resJson);
+      this.props.history.push(`/folder/${resJson.id}`)
+
     })
     .catch(error => {
       console.error({error});

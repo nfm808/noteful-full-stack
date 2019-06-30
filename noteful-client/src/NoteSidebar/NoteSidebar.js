@@ -8,8 +8,8 @@ class NoteSidebar extends React.Component {
     const { notes, folders } = this.context;
     const { noteId } = this.props.match.params;
     const note =  findNote(notes, noteId) || {};
-    const folder =  findFolder(folders, note.folderId)
-    const content = !notes || !folders ? null : <p>{folder.name}</p>
+    const folder =  findFolder(folders, note.folder_id)
+    const content = !notes || !folders ? null : <p>{folder.folder_name}</p>
     return (
       <section className='MainSidebar'>
         {content}  
