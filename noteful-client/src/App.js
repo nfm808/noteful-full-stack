@@ -26,15 +26,18 @@ class App extends React.Component {
     // this promise all creates a grouping of multiple
     // fetch calls to get multiple endpoints and organizes
     // them into an array
-    Promise.all([
-      fetch(`${config.API_ENDPOINT}/notes`),
-      fetch(`${config.API_ENDPOINT}/folders`)
-    ], {
+    const bearer = 'Bearer ' + config.API_KEY
+    const options = {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        "Content-Type": "application/json",
+        "Authorization": bearer
       }
-    })
+    }
+    Promise.all([
+      fetch(`${config.API_URL}notes`),
+      fetch(`${config.API_URL}folders`)
+    ], options)
     // we then take the responses and organize them
     // into an array at assigned positions
     .then(([notesRes, foldersRes]) =>{
