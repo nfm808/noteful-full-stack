@@ -10,23 +10,24 @@ const notesRouter = require('./notes/notes-router')
 
 const app = express()
 
+app.use(cors())
+app.use(helmet())
+// app.use(function validateBearerToken(req, res, next) {
+//   const apiToken = process.env.API_TOKEN
+//   const authToken = req.get('Authorization')
+//   if (!authToken || authToken.split(' ')[1] !== apiToken) {
+//     logger.error(`Unauthorized request to path: ${req.path} with ${authToken}`)
+//     return res.status(401).json({ error: 'Unauthorized request' })
+//   }
+//   // move to the next middleware
+//   next()
+// })
+
 const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
   : 'common';
 
 app.use(morgan(morganOption))
-app.use(cors())
-app.use(helmet())
-app.use(function validateBearerToken(req, res, next) {
-  const apiToken = process.env.API_TOKEN
-  const authToken = req.get('Authorization')
-  if (!authToken || authToken.split(' ')[1] !== apiToken) {
-    logger.error(`Unauthorized request to path: ${req.path}`)
-    return res.status(401).json({ error: 'Unauthorized request' })
-  }
-  // move to the next middleware
-  next()
-})
 app.use('/api/folders', foldersRouter)
 app.use('/api/notes', notesRouter)
 app.get('/', (req, res) => {
